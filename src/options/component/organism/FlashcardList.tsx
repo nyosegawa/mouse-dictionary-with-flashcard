@@ -10,6 +10,34 @@ type Props = {
   onReset: (cardId: string) => void;
 };
 
+const ExpandableTranslation: React.FC<{ html: string }> = ({ html }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // HTMLタグを除いたテキストを生成
+  const plainText = new DOMParser().parseFromString(html, "text/html").body.textContent || "";
+
+  const isLong = plainText.length > 20; // 20文字以上で省略
+  const shortText = isLong ? `${plainText.substring(0, 20)}...` : plainText;
+
+  if (!isLong) {
+    return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  }
+
+  return (
+    <div>
+      {isExpanded ? (
+        <div dangerouslySetInnerHTML={{ __html: html }} />
+      ) : (
+        <div title={plainText}>{shortText}</div>
+      )}
+      <a href="#" onClick={(e) => { e.preventDefault(); setIsExpanded(!isExpanded); }} style={{ fontSize: "0.8em" }}>
+        {isExpanded ? res.get("collapse") : res.get("expand")}
+      </a>
+    </div>
+  );
+};
+
+
 export const FlashcardList: React.FC<Props> = ({ cards, onUpdate, onDelete, onReset }) => {
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [editedTranslation, setEditedTranslation] = useState("");
@@ -38,7 +66,7 @@ export const FlashcardList: React.FC<Props> = ({ cards, onUpdate, onDelete, onRe
         />
       );
     }
-    return <div dangerouslySetInnerHTML={{ __html: card.translation }} />;
+    return <ExpandableTranslation html={card.translation} />;
   };
 
   return (

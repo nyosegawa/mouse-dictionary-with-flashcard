@@ -113,6 +113,8 @@ const JapaneseTextResource: TextResource = {
   review: "復習",
   cardList: "カード一覧",
   newCardNotice: "注意：新しく追加したカードは、翌日が学習日になります。",
+  expand: "もっと見る",
+  collapse: "折りたたむ",
 };
 
 export { JapaneseTextResource };

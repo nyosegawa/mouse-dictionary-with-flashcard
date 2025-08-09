@@ -103,6 +103,8 @@ export type TextResource = {
   review: string;
   cardList: string;
   newCardNotice: string;
+  expand: string;
+  collapse: string;
 };
 
 export type TextResourceKeys = keyof TextResource;

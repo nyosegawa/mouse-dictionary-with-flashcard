@@ -118,6 +118,8 @@ const EnglishTextResource: TextResource = {
   review: "Review",
   cardList: "Card List",
   newCardNotice: "Note: Newly added cards will be due for review tomorrow.",
+  expand: "more",
+  collapse: "less",
 };
 
 export { EnglishTextResource };
