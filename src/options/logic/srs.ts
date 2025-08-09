@@ -1,11 +1,4 @@
-/**
- * Mouse Dictionary (https://github.com/wtetsu/mouse-dictionary/)
- * Copyright 2018-present wtetsu
- * Licensed under MIT
- */
-
 import type { AnswerQuality, FlashCard } from "../types";
-
 
 /**
  * SM-2 algorithm based implementation
@@ -19,14 +12,14 @@ export function updateCard(card: FlashCard, quality: AnswerQuality): FlashCard {
     repetitions = 0;
     interval = 1;
   } else {
-    if (repetitions === 0) {
+    repetitions += 1;
+    if (repetitions === 1) {
       interval = 1;
-    } else if (repetitions === 1) {
+    } else if (repetitions === 2) {
       interval = 6;
     } else {
-      interval = Math.round(interval * easeFactor);
+      interval = Math.ceil(interval * easeFactor);
     }
-    repetitions += 1;
   }
 
   easeFactor = easeFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
@@ -34,22 +27,22 @@ export function updateCard(card: FlashCard, quality: AnswerQuality): FlashCard {
     easeFactor = 1.3;
   }
 
-  const now = new Date();
-  now.setHours(0, 0, 0, 0); // Start of today
-  const dueDate = now.getTime() + interval * 24 * 60 * 60 * 1000;
+  const dueDate = new Date();
+  dueDate.setHours(0, 0, 0, 0);
+  dueDate.setDate(dueDate.getDate() + interval);
 
   return {
     ...card,
     repetitions,
     interval,
     easeFactor,
-    dueDate,
+    dueDate: dueDate.getTime(),
   };
 }
 
 export const getTodayCards = (allCards: Record<string, FlashCard>): FlashCard[] => {
   const now = new Date();
-  now.setHours(23, 59, 59, 999); // End of today
+  now.setHours(23, 59, 59, 999);
   const todayTimestamp = now.getTime();
 
   return Object.values(allCards)
