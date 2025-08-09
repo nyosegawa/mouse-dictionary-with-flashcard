@@ -59,7 +59,7 @@ const parseSettings = (settings) => {
 };
 
 const parseJson = (json) => {
-  if (!json) {
+  if (!json || typeof json !== "string") {
     return null;
   }
   let result;

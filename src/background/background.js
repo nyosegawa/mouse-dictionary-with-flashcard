@@ -50,6 +50,16 @@ chrome.commands.onCommand.addListener((command) => {
   }
 });
 
+// Flashcard handling
+const getFlashcards = async () => {
+  const data = await chrome.storage.local.get("flashcards");
+  return data.flashcards || {};
+};
+
+const saveFlashcards = async (flashcards) => {
+  await chrome.storage.local.set({ flashcards });
+};
+
 // PDF handling
 const queue = new ExpiringQueue(1000 * 30);
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
@@ -72,6 +82,28 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       const pdfData = queue.get(request.id);
       sendResponse(pdfData);
       break;
+    }
+    case "addFlashcard": {
+      const { word, translation } = request.payload;
+      const now = Date.now();
+      const card = {
+        id: `${now}-${word}`,
+        word,
+        translation: translation.replace(/\n/g, "<br/>"),
+        addedDate: now,
+        dueDate: now + 24 * 60 * 60 * 1000, // 1 day later
+        interval: 1,
+        easeFactor: 2.5,
+        repetitions: 0,
+      };
+
+      (async () => {
+        const flashcards = await getFlashcards();
+        flashcards[card.id] = card;
+        await saveFlashcards(flashcards);
+        sendResponse({ success: true });
+      })();
+      return true;
     }
   }
 });

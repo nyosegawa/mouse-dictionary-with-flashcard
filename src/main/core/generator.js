@@ -71,6 +71,7 @@ export default class Generator {
       data.push({
         head: escapeHtml(word),
         desc: this.#createDescriptionHtml(desc),
+        escapedDesc: escapeHtmlForAttribute(desc),
         isShort,
         isShortWord,
         shortDesc: desc.substring(0, this.cutShortWordDescription),
@@ -106,7 +107,9 @@ const compileReplaceRule = (rule, renderParameters) => {
   try {
     re = new RegExp(rule.search, "g");
   } catch (error) {
-    console.error(error);
+    if (process.env.NODE_ENV !== "test") {
+      console.error(error);
+    }
   }
   if (!re) {
     return null;
@@ -130,5 +133,9 @@ const mapForEscapeHtml = {
 const reForEscapeHtml = /&|<|>|"/g;
 
 const escapeHtml = (str) => {
+  return str.replace(reForEscapeHtml, (ch) => mapForEscapeHtml[ch]);
+};
+const escapeHtmlForAttribute = (str) => {
+  if (!str) return "";
   return str.replace(reForEscapeHtml, (ch) => mapForEscapeHtml[ch]);
 };

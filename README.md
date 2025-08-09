@@ -21,6 +21,15 @@ Features:
 - 🔍 Automatic word separation (e.g. camelCase -> camel case)
 - 📝 Option to add your own data
 - 🎨 Customizable view
+- 🧠 **(New!)** Built-in Flashcard system with SRS algorithm
+
+New Feature: Flashcards!
+
+Learn words more effectively with the new Flashcard feature based on the SRS (Spaced Repetition System) algorithm.
+
+| Adding a word | Card List | Review (Front) | Review (Back) |
+| :---: | :---: | :---: | :---: |
+| ![Adding a word to flashcards](./images/flashcard-add.png) | ![List of all flashcards](./images/flashcard-list.png) | ![Reviewing a flashcard](./images/flashcard-review-front.png) | ![Flipping a flashcard to see the answer](./images/flashcard-review-back.png) |
 
 Available for various documents:
 
