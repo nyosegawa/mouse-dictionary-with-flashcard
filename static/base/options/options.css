@@ -139,3 +139,51 @@ input:not([type]) {
 .hover_zoom:hover {
   transform: scale(1.1);
 }
+
+/* Flashcard Styles */
+.sub-nav {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+.sub-nav button {
+  margin-right: 10px;
+}
+
+.flashcard-list-container {
+  margin-top: 20px;
+}
+
+.flashcard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.flashcard-table th,
+.flashcard-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.flashcard-table th {
+  background-color: #f2f2f2;
+}
+
+.flashcard-table .translation-cell {
+  max-width: 350px;
+  word-wrap: break-word;
+}
+
+.flashcard-table .actions-cell {
+  width: 250px;
+  white-space: nowrap;
+}
+
+.flashcard-table .actions-cell button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  font-size: 0.9em;
+}

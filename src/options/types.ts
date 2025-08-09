@@ -77,3 +77,26 @@ export type ExternalLinks = {
   downloadDictData: string;
   setKeyboardShortcuts: string;
 };
+
+export type FlashCard = {
+  id: string;
+  word: string;
+  translation: string;
+  addedDate: number;
+  dueDate: number;
+  interval: number;
+  easeFactor: number;
+  repetitions: number;
+};
+
+export type LearningLog = {
+  date: string; // YYYY-MM-DD
+  count: number;
+};
+
+export type FlashcardStorage = {
+  flashcards?: Record<string, FlashCard>;
+  learningLogs?: Record<string, LearningLog>;
+};
+
+export type AnswerQuality = "again" | "hard" | "good" | "easy";

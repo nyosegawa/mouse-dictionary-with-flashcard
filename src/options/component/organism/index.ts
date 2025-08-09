@@ -6,6 +6,9 @@
 
 export * from "./AdvancedSettings";
 export * from "./BasicSettings";
+export * from "./FlashcardDeck";
+export * from "./FlashcardStats";
+export * from "./FlashcardList";
 export * from "./LoadDictionary";
 export * from "./OperationPanel";
 export * from "./ReplaceRuleEditor";

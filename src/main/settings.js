@@ -78,6 +78,7 @@ export default {
         {{head}}
       </span>
       <span style="cursor:pointer;visibility:hidden;" data-md-pronunciation="{{head}}" data-md-hovervisible="true">🔊</span>
+      <span style="cursor:pointer;visibility:hidden;font-size:large;margin-left:5px;" data-md-flashcard-word="{{head}}" data-md-flashcard-desc="{{{escapedDesc}}}" data-md-hovervisible="true" title="Add to flashcard">✚</span>
       <br/>
       <span style="font-size:{{descFontSize}};color:{{descFontColor}};">
         {{{desc}}}

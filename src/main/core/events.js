@@ -147,6 +147,31 @@ const setDialogEvents = (dialog) => {
     for (const elem of e.target.querySelectorAll("[data-md-hovervisible]")) {
       elem.style.visibility = "visible";
     }
+    // Add event listener for flashcard
+    for (const elem of e.target.querySelectorAll("[data-md-flashcard-word]")) {
+      if (elem.dataset.mdFlashcardSet) {
+        continue;
+      }
+      elem.dataset.mdFlashcardSet = "true";
+      elem.addEventListener("click", () => {
+        const word = elem.dataset.mdFlashcardWord;
+        const translation = elem.dataset.mdFlashcardDesc;
+        if (word && translation) {
+          chrome.runtime.sendMessage({
+            type: "addFlashcard",
+            payload: {
+              word,
+              translation,
+            },
+          });
+          // Visual feedback
+          elem.textContent = "✔";
+          setTimeout(() => {
+            elem.textContent = "✚";
+          }, 1500);
+        }
+      });
+    }
   });
   dialog.addEventListener("mouseleave", (e) => {
     for (const elem of e.target.querySelectorAll("[data-md-hovervisible]")) {

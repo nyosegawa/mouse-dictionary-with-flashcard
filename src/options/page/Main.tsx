@@ -32,6 +32,7 @@ import { usePreview } from "../logic/preview";
 
 import type { TextResourceKeys } from "../resource";
 import type { DictionaryFile, MouseDictionarySettings } from "../types";
+import { FlashcardPage } from "./FlashcardPage";
 
 type MainState = {
   dictDataUsage?: number;
@@ -42,6 +43,7 @@ type MainState = {
   panelLevel: 0 | 1 | 2 | 3;
   lang: string;
   initialized: boolean;
+  activeTab: "settings" | "flashcards";
 };
 
 type Action =
@@ -78,6 +80,7 @@ const initialState: MainState = {
   panelLevel: 0,
   lang: "",
   initialized: false,
+  activeTab: "settings",
 };
 
 type UpdateState = (state: Partial<MainState>) => void;
@@ -137,6 +140,114 @@ export const Main: React.FC = () => {
     updateState({ lang: newLang });
   };
 
+  const renderTabContent = () => {
+    switch (state.activeTab) {
+      case "flashcards":
+        return <FlashcardPage />;
+      default:
+        return (
+          <>
+            <div
+              style={{ position: "absolute", top: 0, left: -30, cursor: "pointer" }}
+              onClick={() => switchLanguage()}
+            >
+              {state.lang}
+            </div>
+            <LoadDictionary busy={state.busy} trigger={(e) => loadDictionaryData(e.payload, updateState)} />
+            <Panel active={env.get().support.localGetBytesInUse && !state.busy}>
+              <DataUsage
+                byteSize={state.dictDataUsage}
+                onUpdate={(byteSize) => updateState({ dictDataUsage: byteSize })}
+              />
+            </Panel>
+            <div style={{ fontSize: "75%" }}>
+              <span>{state.progress}</span>
+            </div>
+            <div style={{ cursor: "pointer", fontSize: "75%" }} onClick={() => updateState({ dictDataUsage: -1 })} />
+            <Switch visible={state.initialized && state.panelLevel === 0}>
+              <Tips style={{ position: "absolute", bottom: -10, left: 315, width: 300 }} />
+              <Launch
+                href="pdf/web/viewer.html"
+                text={res.get("openPdfViewer")}
+                image="img/pdf.png"
+                style={{ position: "absolute", bottom: 0, left: 380 }}
+              />
+            </Switch>
+            <Panel active={!state.busy && env.get().enableUserSettings && state.initialized}>
+              <hr style={{ marginTop: 15 }} />
+              <Toggle
+                switch={state.panelLevel >= 1}
+                image="img/settings1.png"
+                text1={res.get("openBasicSettings")}
+                text2={res.get("closeBasicSettings")}
+                onClick={() => updateState({ panelLevel: state.panelLevel !== 0 ? 0 : 1 })}
+              />
+            </Panel>
+            <Panel active={state.panelLevel >= 1}>
+              <div style={{ marginBottom: 20 }}>
+                <span>{res.get("previewText")}: </span>
+                <EditableSpan
+                  value={state.previewText}
+                  style={{ width: 300 }}
+                  onChange={(e) => updateState({ previewText: e.target.value })}
+                />
+              </div>
+              <OperationPanel
+                disable={state.busy}
+                trigger={(type) => {
+                  switch (type) {
+                    case "save":
+                      return saveSettings(state.settings);
+                    case "factoryReset":
+                      return doFactoryReset();
+                  }
+                }}
+              />
+              <BasicSettings
+                onUpdate={(statePatch, settingsPatch) => updateState(statePatch, settingsPatch)}
+                busy={state.busy}
+                settings={state.settings}
+              >
+                <label>{res.get("dictionaryData")}</label>
+                <Button
+                  type="revert"
+                  text={res.get("loadInitialDict")}
+                  disabled={state.busy}
+                  onClick={() => confirmAndLoadInitialDict("confirmReloadInitialDict", updateState)}
+                />
+              </BasicSettings>
+              <br />
+              <Toggle
+                switch={state.panelLevel >= 2}
+                image="img/settings2.png"
+                text1={res.get("openAdvancedSettings")}
+                text2={res.get("closeAdvancedSettings")}
+                onClick={() => updateState({ panelLevel: state.panelLevel !== 1 ? 1 : 2 })}
+              />
+            </Panel>
+            <Panel active={state.panelLevel >= 2}>
+              <Button
+                type="json"
+                text={res.get("openJsonEditor")}
+                disabled={state.busy}
+                onClick={() => updateState({ panelLevel: 3 })}
+              />
+              <AdvancedSettings
+                onUpdate={(statePatch, settingsPatch) => updateState(statePatch, settingsPatch)}
+                settings={state.settings}
+              />
+            </Panel>
+            <Overlay active={state.panelLevel >= 3}>
+              <WholeSettings
+                initialValue={state.settings}
+                onChange={(newSettings) => updateState({ panelLevel: 2 }, newSettings)}
+              />
+            </Overlay>
+          </>
+        );
+    }
+  };
+
   return (
     <>
       <div style={{ textAlign: "center", marginBottom: "10px" }}>
@@ -145,108 +256,23 @@ export const Main: React.FC = () => {
         </ExternalLink>
       </div>
 
-      <div>
-        <div style={{ position: "absolute", top: 0, left: -30, cursor: "pointer" }} onClick={() => switchLanguage()}>
-          {state.lang}
-        </div>
-        <LoadDictionary busy={state.busy} trigger={(e) => loadDictionaryData(e.payload, updateState)} />
-
-        <Panel active={env.get().support.localGetBytesInUse && !state.busy}>
-          <DataUsage byteSize={state.dictDataUsage} onUpdate={(byteSize) => updateState({ dictDataUsage: byteSize })} />
-        </Panel>
-        <div style={{ fontSize: "75%" }}>
-          <span>{state.progress}</span>
-        </div>
-
-        <div style={{ cursor: "pointer", fontSize: "75%" }} onClick={() => updateState({ dictDataUsage: -1 })} />
-
-        <Switch visible={state.initialized && state.panelLevel === 0}>
-          <Tips style={{ position: "absolute", bottom: -10, left: 315, width: 300 }} />
-          <Launch
-            href="pdf/web/viewer.html"
-            text={res.get("openPdfViewer")}
-            image="img/pdf.png"
-            style={{ position: "absolute", bottom: 0, left: 380 }}
-          />
-        </Switch>
-
-        <Panel active={!state.busy && env.get().enableUserSettings && state.initialized}>
-          <hr style={{ marginTop: 15 }} />
-
-          <Toggle
-            switch={state.panelLevel >= 1}
-            image="img/settings1.png"
-            text1={res.get("openBasicSettings")}
-            text2={res.get("closeBasicSettings")}
-            onClick={() => updateState({ panelLevel: state.panelLevel !== 0 ? 0 : 1 })}
-          />
-        </Panel>
-
-        <Panel active={state.panelLevel >= 1}>
-          <div style={{ marginBottom: 20 }}>
-            <span>{res.get("previewText")}: </span>
-            <EditableSpan
-              value={state.previewText}
-              style={{ width: 300 }}
-              onChange={(e) => updateState({ previewText: e.target.value })}
-            />
-          </div>
-          <OperationPanel
-            disable={state.busy}
-            trigger={(type) => {
-              switch (type) {
-                case "save":
-                  return saveSettings(state.settings);
-                case "factoryReset":
-                  return doFactoryReset();
-              }
-            }}
-          />
-          <BasicSettings
-            onUpdate={(statePatch, settingsPatch) => updateState(statePatch, settingsPatch)}
-            busy={state.busy}
-            settings={state.settings}
-          >
-            <label>{res.get("dictionaryData")}</label>
-            <Button
-              type="revert"
-              text={res.get("loadInitialDict")}
-              disabled={state.busy}
-              onClick={() => confirmAndLoadInitialDict("confirmReloadInitialDict", updateState)}
-            />
-          </BasicSettings>
-          <br />
-
-          <Toggle
-            switch={state.panelLevel >= 2}
-            image="img/settings2.png"
-            text1={res.get("openAdvancedSettings")}
-            text2={res.get("closeAdvancedSettings")}
-            onClick={() => updateState({ panelLevel: state.panelLevel !== 1 ? 1 : 2 })}
-          />
-        </Panel>
-
-        <Panel active={state.panelLevel >= 2}>
-          <Button
-            type="json"
-            text={res.get("openJsonEditor")}
-            disabled={state.busy}
-            onClick={() => updateState({ panelLevel: 3 })}
-          />
-
-          <AdvancedSettings
-            onUpdate={(statePatch, settingsPatch) => updateState(statePatch, settingsPatch)}
-            settings={state.settings}
-          />
-        </Panel>
-
-        <Overlay active={state.panelLevel >= 3}>
-          <WholeSettings
-            initialValue={state.settings}
-            onChange={(newSettings) => updateState({ panelLevel: 2 }, newSettings)}
-          />
-        </Overlay>
+      <div style={{ marginBottom: "20px", borderBottom: "1px solid #ccc" }}>
+        <button
+          type="button"
+          className={state.activeTab === "settings" ? "button" : "button button-outline"}
+          onClick={() => updateState({ activeTab: "settings" })}
+        >
+          {res.get("settings")}
+        </button>
+        <button
+          type="button"
+          className={state.activeTab === "flashcards" ? "button" : "button button-outline"}
+          onClick={() => updateState({ activeTab: "flashcards" })}
+        >
+          {res.get("flashcards")}
+        </button>
       </div>
+      <div>{renderTabContent()}</div>
     </>
   );
 };
